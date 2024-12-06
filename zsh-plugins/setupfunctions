@@ -1,0 +1,40 @@
+snsetup () {
+        brazil ws create --n $1 --vs spaceneedle/live;
+        cd $1
+        brazil ws use -p SpaceNeedleWebsiteStaticContent
+}
+
+snsetupvega () {
+        brazil ws create --n $1 --vs spaceneedle/live;
+        cd $1
+        brazil ws use -p SpaceNeedleVega
+        cd src/SpaceNeedleVega
+}
+
+snsetupblank () {
+        brazil ws create --n $1 --vs spaceneedle/live;
+        cd $1
+}
+
+mwinit() {
+  devdesktop_host="https://pcheliy.aka.corp.amazon.com/" # fqdn or the ssh config alias
+  devdesktop_home_dir="/home/pcheliy"
+
+  midway_status=$(mcurl "https://midway-auth.amazon.com/api/session-status" 2>/dev/null)
+  authenticated=$(echo $midway_status | jq -S ."authenticated")
+
+
+  if [[ -x "/usr/local/bin/mwinit" ]]; then
+    # MacOS
+    /usr/local/bin/mwinit -s
+
+    # copy the cookie to the cloud desktop
+    scp "$HOME/.midway/cookie" "$devdesktop_host:$devdesktop_home_dir/.midway/cookie"
+  elif [[ -x "/usr/bin/mwinit" ]]; then
+    # Cloud desktop
+    /usr/bin/mwinit -o -s
+  else
+    echo "Neither Midway command was found!"
+    return 2
+  fi
+}
